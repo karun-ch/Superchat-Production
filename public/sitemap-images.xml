@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  
+  <!-- Homepage Images -->
+  <url>
+    <loc>https://superchat.in/</loc>
+    <image:image>
+      <image:loc>https://superchat.in/assets/superchat_logo_white-B9pw_0B8.webp</image:loc>
+      <image:title>Superchat Logo</image:title>
+      <image:caption>Superchat AI Platform Logo</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://superchat.in/assets/superchat_logo-D3XW-gLB.webp</image:loc>
+      <image:title>Superchat Dark Logo</image:title>
+      <image:caption>Superchat AI Platform Dark Mode Logo</image:caption>
+    </image:image>
+  </url>
+
+  <!-- For Business Images -->
+  <url>
+    <loc>https://superchat.in/forbusiness</loc>
+    <image:image>
+      <image:loc>https://superchat.in/assets/chat_app_screen-DBnm5RK.png</image:loc>
+      <image:title>Business Chat Interface</image:title>
+      <image:caption>Superchat Business Solution Interface</image:caption>
+    </image:image>
+  </url>
+
+  <!-- For Developers Images -->
+  <url>
+    <loc>https://superchat.in/fordevelopers</loc>
+    <image:image>
+      <image:loc>https://superchat.in/assets/ai_manufac-DUQLe37q.webp</image:loc>
+      <image:title>Developer Interface</image:title>
+      <image:caption>Superchat Developer Platform Interface</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Super Chip Images -->
+  <url>
+    <loc>https://superchat.in/superchip</loc>
+    <image:image>
+      <image:loc>https://superchat.in/assets/semiconductor-Rf61p3KZ.jpeg</image:loc>
+      <image:title>Super Chip Technology</image:title>
+      <image:caption>Superchat AI Chip Technology</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Chatbot Interface Images -->
+  <url>
+    <loc>https://superchat.in/chatbot</loc>
+    <image:image>
+      <image:loc>https://superchat.in/assets/Chat_screen-C4gJmm60.webp</image:loc>
+      <image:title>Chatbot Interface</image:title>
+      <image:caption>Superchat AI Chatbot Interface</image:caption>
+    </image:image>
+  </url>
+</urlset>

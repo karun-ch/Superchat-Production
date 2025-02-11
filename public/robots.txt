@@ -1,0 +1,50 @@
+# Superchat AI Platform robots.txt
+
+# Default rules for all crawlers
+User-agent: *
+Allow: /
+Allow: /assets/
+Allow: /src/
+Allow: /blog/
+
+# Optimize crawl efficiency by disallowing unnecessary paths
+Disallow: /assets/*.js$
+Disallow: /assets/*.css$
+Disallow: /search?*
+Disallow: /admin/
+Disallow: /user/
+Disallow: /*?*query=
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /api/
+Disallow: /dashboard/
+
+# Special directive for Google's main crawler
+User-agent: Googlebot
+Allow: /
+Allow: /*.js$
+Allow: /*.css$
+Allow: /blog/
+Crawl-delay: 1
+
+# Special directive for Google's image crawler
+User-agent: Googlebot-Image
+Allow: /assets/
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.png$
+Allow: /*.webp$
+Allow: /*.svg$
+
+# Bing crawler
+User-agent: Bingbot
+Allow: /
+Allow: /blog/
+Crawl-delay: 1
+
+# Specify sitemaps
+Sitemap: https://superchat.in/sitemap.xml
+Sitemap: https://superchat.in/sitemap-main.xml
+Sitemap: https://superchat.in/sitemap-images.xml
+Sitemap: https://superchat.in/sitemap-blog.xml
