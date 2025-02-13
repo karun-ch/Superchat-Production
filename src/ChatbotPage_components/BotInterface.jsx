@@ -142,15 +142,6 @@ const BotInterface = () => {
     }
   };
 
-  // File Handling
-  // const handleFile = (fileType) => {
-  //   if (fileInputRef.current) {
-  //     fileInputRef.current.accept =
-  //       fileType === "image" ? "image/*" : fileType === "pdf" ? ".pdf" : ".csv";
-  //     fileInputRef.current.click();
-  //   }
-  // };
-
   const handleFile = (fileType) => {
     const fileTypes = {
       image: "image/*",
@@ -251,21 +242,6 @@ const BotInterface = () => {
       darkmode ? "bg-[#3A3A3A] text-gray-300" : "bg-gray-100 text-black"
     }`}
   >
-    {/* <button
-      role="menuitem"
-      aria-label="Upload Document"
-      className={`p-2 text-left w-full ${
-        darkmode
-          ? "text-white hover:bg-[#4A4A4A]"
-          : "text-black hover:bg-gray-300"
-      }`}
-      // onClick={handleDocUpload}
-      onClick={() => handleFile("doc")}
-
-    >
-      <GrDocument className="inline mr-2" aria-hidden="true" />
-      Upload Document
-    </button> */}
     
     {fileMenuItems.map(({ type, label, icon }) => (
       <button

@@ -12,5 +12,10 @@ export const translate_api='https://ample-grouse-clearly.ngrok-free.app/chatbot/
 
 export const voice2v_api='https://ample-grouse-clearly.ngrok-free.app/audio/voice2voice'
 
+
+
 export const doc_upload_api="https://ample-grouse-clearly.ngrok-free.app/document/upload"
 export const ask_doc="https://ample-grouse-clearly.ngrok-free.app/document/ask"
+export const generate_otp="https://ample-grouse-clearly.ngrok-free.app/auth/generate_otp"
+export const verify_otp="https://ample-grouse-clearly.ngrok-free.app/auth/verify_otp"
+export const reset_password="https://ample-grouse-clearly.ngrok-free.app/auth/reset_password"
