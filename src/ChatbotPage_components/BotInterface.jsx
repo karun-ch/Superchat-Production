@@ -16,6 +16,9 @@ import superchatLogo_white from "../assets/superchat_logo_white.webp";
 import RenderLogo from "./BotInterface_components/RenderLogo";
 import { changeVoiceMode } from "../ReduxStateManagement/user";
 import { Helmet } from 'react-helmet-async';
+// import { Button } from "@/components/ui/button";
+import { Globe } from "lucide-react"; // Import the Globe icon
+
 
 const BotInterface = () => {
   const seoMetadata = {
@@ -30,6 +33,9 @@ const BotInterface = () => {
   const { darkmode, sidebarReduced } = useSelector((store) => store.user);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  const [userInput, setUserInput] = useState("");
+  const [searchEnabled, setSearchEnabled] = useState(false);
   
   const [activeToggle, setActiveToggle] = useState("chat");
   const [chatStarted, setChatStarted] = useState(false);
@@ -47,6 +53,31 @@ const BotInterface = () => {
     navigate("/signup");
   }
 
+  const handleSendMessage = async () => {
+    if (!message.trim()) return; // Prevent sending empty messages
+  
+    const requestBody = {
+      user_input: message, // Use 'message' instead of 'userInput'
+      response_length: "short",
+      conversation_id: "null",
+      target_lang: "en",
+      search: searchEnabled.toString(),
+    };
+  
+    try {
+      const response = await fetch("https://ample-grouse-clearly.ngrok-free.app/chatbot/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+  
+      const data = await response.json();
+      console.log("Response:", data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
   // Utility Functions
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -283,6 +314,17 @@ const renderInputArea = () => (
 
         {/* File Menu */}
         {showFileMenu && renderFileMenu()}
+
+         {/* Browser Search Toggle Button */}
+         <button
+          aria-label="Toggle browser search"
+          className={`p-2 rounded-full flex items-center justify-center mr-2 ${
+            searchEnabled ? "bg-blue-500 text-white" : "bg-gray-300 text-black"
+          }`}
+          onClick={() => setSearchEnabled((prev) => !prev)}
+        >
+          <Globe className="w-5 h-5" /> {/* Browser symbol */}
+        </button>
 
         {/* Chat Input */}
         <textarea

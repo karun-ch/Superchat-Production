@@ -1,30 +1,30 @@
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../ReduxStateManagement/authslice";
 import { useNavigate } from "react-router-dom";
 import {
- 
-  FaUserCircle,
-  FaRegTrashAlt,
+  FaHeadset,
+  FaGlobe,
   FaRegMoon,
   FaRegSun,
+  FaRegTrashAlt,
+  FaHistory,
   FaRegUserCircle,
- 
-  FaGlobe,
- 
-  FaHeadset,
 } from "react-icons/fa";
 import superchatLogo from "../assets/superchat_logo.webp";
 import { changesidebarwidth, changetodarkmode } from "../ReduxStateManagement/user";
-import {toggleChatbot,toggleTranslate} from '../ReduxStateManagement/chatbot';
-import { clear_chat_api } from "../Utils/Apis";
+import { toggleChatbot, toggleTranslate } from '../ReduxStateManagement/chatbot';
+import { clear_chat_api, get_chat_api } from "../Utils/Apis";
 import superchatLogo_white from "../assets/superchat_logo_white.webp";
-import { useState } from "react";
 
 const Sidebar = () => {
   const { darkmode, sidebarReduced } = useSelector((store) => store.user);
-  const {chatbot,translate} = useSelector(store =>store.bot);
+  const { chatbot, translate } = useSelector(store => store.bot);
 
   const [isDeleting, setIsdeleting] = useState(false);
+  const [isRecovering, setIsRecovering] = useState(false);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [isHistoryVisible, setIsHistoryVisible] = useState(false); // State for toggling chat history view
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -32,26 +32,15 @@ const Sidebar = () => {
     dispatch(changesidebarwidth());
   };
 
-  const handleTranslate = () =>{
-    dispatch (toggleChatbot(false))
-    dispatch(toggleTranslate(true))
-  }
-  
-  const handlechatbot = ()=>{
-    dispatch (toggleChatbot(true))
-    dispatch(toggleTranslate(false))
+  const handleTranslate = () => {
+    dispatch(toggleChatbot(false));
+    dispatch(toggleTranslate(true));
   }
 
-  const menuItemClass = () =>
-    `p-2 rounded-full flex items-center cursor-pointer ${
-      sidebarReduced
-        ? "justify-center bg-gray-700 text-white"
-        : ` gap-2 hover:bg-gray-300 ${
-            darkmode ? "hover:bg-gray-600 text-white" : "text-gray-600"
-          }`
-    }`;
-
-  const tooltipClass = `absolute left-12 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-black text-white text-sm rounded-md px-2 py-1 whitespace-nowrap`;
+  const handleChatbot = () => {
+    dispatch(toggleChatbot(true));
+    dispatch(toggleTranslate(false));
+  }
 
   const handleclearconversations = async () => {
     setIsdeleting(true);
@@ -81,6 +70,52 @@ const Sidebar = () => {
     }
   };
 
+  const handleRecoverConversations = async () => {
+    setIsRecovering(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("No token found. Please log in again.");
+        navigate("/signup");
+        return;
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        // "Content-Type": "application/json",
+      };
+
+      const resp = await fetch(`${get_chat_api}`, {
+        method: "GET",
+        headers: headers,
+        credentials: "include",
+      });
+
+      if (!resp.ok) {
+        throw new Error(`Failed to fetch chat history: ${resp.status} ${resp.statusText}`);
+      }
+
+      const data = await resp.json();
+
+      if (data.message === "Token has expired!") {
+        dispatch(logout());
+        localStorage.removeItem("messages");
+        navigate("/signup");
+        return;
+      }
+
+      if (data.chat_history) {
+        setChatHistory(data.chat_history);
+      } else {
+        alert("No conversations found to recover.");
+      }
+    } catch (error) {
+      alert(`Error recovering conversations: ${error.message}`);
+    } finally {
+      setIsRecovering(false);
+    }
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     localStorage.removeItem("messages");
@@ -98,18 +133,30 @@ const Sidebar = () => {
     }
   };
 
+  const menuItemClass = () =>
+    `p-2 rounded-full flex items-center cursor-pointer ${
+      sidebarReduced
+        ? "justify-center bg-gray-700 text-white"
+        : ` gap-2 hover:bg-gray-300 ${
+            darkmode ? "hover:bg-gray-600 text-white" : "text-gray-600"
+          }`
+    }`;
+
+  // Toggle chat history visibility
+  const toggleHistoryVisibility = () => {
+    if (!isHistoryVisible) {
+      handleRecoverConversations(); // Load history when opening
+    }
+    setIsHistoryVisible(!isHistoryVisible); // Toggle visibility
+  };
+
   return (
     <aside
       aria-label="Main Navigation Sidebar"
       className={`${
         darkmode ? "bg-[#3A3B3C] text-white" : "bg-[#777777] bg-opacity-5 text-gray-900"
-      } h-screen flex flex-col ${
-      //   sidebarReduced ? "w-20" : "w-[230px]"
-      // } fixed top-0 left-0 z-10`}
-      sidebarReduced ? "w-16" : "w-[230px]"
-      } fixed top-0 left-0 z-10 transition-all duration-300 ease-in-out`}
+      } h-screen flex flex-col ${sidebarReduced ? "w-16" : "w-[230px]"} fixed top-0 left-0 z-10 transition-all duration-300 ease-in-out`}
     >
-      {/* Logo and Brand Section */}
       <header className="flex flex-col items-center p-4" role="banner">
         {sidebarReduced ? (
           <img
@@ -121,109 +168,81 @@ const Sidebar = () => {
             loading="eager"
           />
         ) : (
-          <h1 
-            className={`text-xl font-[250px] pt-7 ml- bg-gradient-to-r ${
-              darkmode ? "from-[#F5EEF8] to-[#D0D3D4]" : "from-[#6F036C] to-[#FF6F61]"
-            } bg-clip-text text-transparent`}
-          >
+          <h1 className={`text-xl font-[250px] pt-7 ml- bg-gradient-to-r ${darkmode ? "from-[#F5EEF8] to-[#D0D3D4]" : "from-[#6F036C] to-[#FF6F61]"} bg-clip-text text-transparent`}>
             Superchat LLC
           </h1>
         )}
       </header>
 
-      {/* Navigation Menu */}
       <nav className="flex flex-col items-start px-4 mt-auto mb-4" role="navigation">
-        <ul className="w-full " role="menu">
-          {/*AI assiatnt */}
-          <li className="relative group" role="none">
-            <button
-              className={menuItemClass()}
-              onClick={handlechatbot}
-              role="menuitem"
-              aria-label="Ai assistant"
-              title="Ai assistant"
-            >
+        <ul className="w-full" role="menu">
+          {/* AI Assistant */}
+          <li className="relative group">
+            <button className={menuItemClass()} onClick={handleChatbot} role="menuitem" aria-label="Ai assistant" title="Ai assistant">
               <FaHeadset aria-hidden="true" className="hover:text-gray-950" />
-              {!sidebarReduced && <span className={`${chatbot ? "underline" : ""} `}>AI Assistant</span>}
+              {!sidebarReduced && <span className={`${chatbot ? "underline" : ""}`}>AI Assistant</span>}
             </button>
-            {sidebarReduced && <div className={tooltipClass} role="tooltip">AI Assistant</div>}
           </li>
 
           {/* Translate */}
-          <li className="relative group" role="none">
-            <button
-              className={menuItemClass()}
-              onClick={handleTranslate}
-              role="menuitem"
-              aria-label="Translate"
-              title="Translator"
-            >
+          <li className="relative group">
+            <button className={menuItemClass()} onClick={handleTranslate} role="menuitem" aria-label="Translate" title="Translator">
               <FaGlobe aria-hidden="true" className="hover:text-gray-950" />
-              {!sidebarReduced && <span className={`${translate ? "underline" : ""} `}>Translator</span>}
+              {!sidebarReduced && <span className={`${translate ? "underline" : ""}`}>Translator</span>}
             </button>
-            {sidebarReduced && <div className={tooltipClass} role="tooltip">Translator</div>}
           </li>
 
           {/* Theme Toggle */}
-          <li className="relative group" role="none">
-            <button
-              onClick={handleThemeToggle}
-              className={menuItemClass()}
-              role="menuitem"
-              aria-label={darkmode ? "Switch to Light Theme" : "Switch to Dark Theme"}
-              title={darkmode ? "Switch to Light Theme" : "Switch to Dark Theme"}
-            >
+          <li className="relative group">
+            <button onClick={handleThemeToggle} className={menuItemClass()} role="menuitem" aria-label={darkmode ? "Switch to Light Theme" : "Switch to Dark Theme"} title={darkmode ? "Switch to Light Theme" : "Switch to Dark Theme"}>
               {darkmode ? <FaRegSun aria-hidden="true" /> : <FaRegMoon aria-hidden="true" />}
-              {!sidebarReduced && (
-                <span>{darkmode ? "Light Theme" : "Dark Theme"}</span>
-              )}
+              {!sidebarReduced && <span>{darkmode ? "Light Theme" : "Dark Theme"}</span>}
             </button>
-            {sidebarReduced && <div className={tooltipClass} role="tooltip">{darkmode ? "Light Theme" : "Dark Theme"}</div>}
           </li>
 
           {/* Clear Conversations */}
-          <li className="relative group" role="none">
-            <button
-              className={menuItemClass()}
-              onClick={handleclearconversations}
-              role="menuitem"
-              aria-label="Clear all conversations"
-              disabled={isDeleting}
-              title="Clear all conversations"
-            >
+          <li className="relative group">
+            <button className={menuItemClass()} onClick={handleclearconversations} role="menuitem" aria-label="Clear all conversations" disabled={isDeleting} title="Clear all conversations">
               <FaRegTrashAlt aria-hidden="true" className="hover:text-gray-950" />
               {!sidebarReduced && <span>Clear Conversations</span>}
               {isDeleting && <span className="sr-only">Clearing conversations...</span>}
             </button>
-            {sidebarReduced && <div className={tooltipClass} role="tooltip">Clear Conversations</div>}
+          </li>
+
+          {/* Recover Conversations */}
+          <li className="relative group">
+            <button className={menuItemClass()} onClick={toggleHistoryVisibility} role="menuitem" aria-label="Recover conversations" disabled={isRecovering} title="Recover deleted conversations">
+              <FaHistory aria-hidden="true" className="hover:text-gray-950" />
+              {!sidebarReduced && <span>History</span>}
+              {isRecovering && <span className="ml-2 text-sm text-gray-500 animate-pulse">Recovering...</span>}
+            </button>
           </li>
 
           {/* Logout */}
-          <li className="relative group" role="none">
-            <button
-              onClick={handleLogout}
-              className={`${sidebarReduced ? "" : "ml-2"} flex gap-2 items-center justify-center cursor-pointer ${
-                darkmode ? "text-white hover:text-red-800" : "text-gray-500 hover:text-red-700"
-              }`}
-              role="menuitem"
-              aria-label="Log out of your account"
-              title="Log out"
-            >
-              {sidebarReduced ? (
-                <>
-                  <FaUserCircle aria-hidden="true" />
-                  <div className={tooltipClass} role="tooltip">Logout</div>
-                </>
-              ) : (
-                <>
-                  <FaRegUserCircle aria-hidden="true" className="text-lg" />
-                  <span>Log out</span>
-                </>
-              )}
+          <li className="relative group">
+            <button onClick={handleLogout} className={`${sidebarReduced ? "" : "ml-2"} flex gap-2 items-center justify-center cursor-pointer ${darkmode ? "text-white hover:text-red-800" : "text-gray-500 hover:text-red-700"}`} role="menuitem" aria-label="Log out of your account" title="Log out">
+              <FaRegUserCircle aria-hidden="true" className="text-lg" />
+              {!sidebarReduced && <span>Log out</span>}
             </button>
           </li>
         </ul>
       </nav>
+
+      {/* Display chat history when visible */}
+      {isHistoryVisible && (
+        <div className="chat-history mt-4 px-4">
+          {chatHistory.length > 0 ? (
+            chatHistory.map((chat, index) => (
+              <div key={index} className="chat-item p-3 bg-white shadow-md rounded-lg mb-2">
+                <p><strong>User:</strong> {chat.user_message}</p>
+                <p><strong>Bot:</strong> {chat.bot_reply}</p>
+              </div>
+            ))
+          ) : (
+            <p>No conversations found.</p>
+          )}
+        </div>
+      )}
     </aside>
   );
 };
