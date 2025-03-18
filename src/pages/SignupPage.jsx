@@ -50,6 +50,20 @@ export default function SignupPage() {
     setloginhandle(!loginhandle);
   };
 
+  // const handleGenerateOtp = async () => {
+  //   const response = await fetch(generate_otp, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ email: formdata.email }),
+  //   });
+  //   if (response.ok) {
+  //     alert("OTP sent to email!");
+  //     setResetStep("otp");
+  //   } else {
+  //     alert("Failed to send OTP");
+  //   }
+  // };
+
   const handleGenerateOtp = async () => {
     const response = await fetch(generate_otp, {
       method: "POST",
@@ -98,13 +112,27 @@ export default function SignupPage() {
   };
   
 
+  // const handleResetPassword = async () => {
+  //   const response = await fetch(reset_password, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ email: formdata.email, newPassword }),
+  //   });
+  //   if (response.ok) {
+  //     alert("Password Reset Successfully!");
+  //     setResetStep(null);
+  //   } else {
+  //     alert("Failed to reset password");
+  //   }
+  // };
+
   const handleResetPassword = async () => {
     const response = await fetch(reset_password, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         email: formdata.email, 
-        password: newPassword,  //  Use "password" instead of "newPassword"
+        password: newPassword,  // ✅ Use "password" instead of "newPassword"
       }),
     });
   
@@ -132,17 +160,15 @@ export default function SignupPage() {
         body: JSON.stringify(formdata),
       });
       const data = await resp.json();
-      // console.log("API Response:", data); // Debugging
+      console.log("API Response:", data); // Debugging
 
       if (data.token) {
-        // console.log("Token received:", data.token); // Debugging
-        localStorage.setItem("token", data.token);
+        console.log("Token received:", data.token); // Debugging
+        localStorage.setItem("token", data.token); // Store token
         dispatch(login({ token: data.token }));
         navigate("/chatbot");
       } else {
-        const errorMessage = data.error || "Login failed. Please try again.";
-        seterror(errorMessage);
-        alert(errorMessage); // Show error to user
+        seterror(data.error || "Login failed. Please try again.");
       }
     } catch (err) {
       console.log(err);
@@ -153,11 +179,11 @@ export default function SignupPage() {
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      //console.log("Full token response:", tokenResponse);
-    },
-  });
+  // const googleLogin = useGoogleLogin({
+  //   onSuccess: async (tokenResponse) => {
+  //     //console.log("Full token response:", tokenResponse);
+  //   },
+  // });
 
   return (
     <>
@@ -303,7 +329,7 @@ export default function SignupPage() {
             </button>
 
             {/* Google Login Option */}
-            <p className="text-center text-gray-600 my-4">Or continue with</p>
+            {/* <p className="text-center text-gray-600 my-4">Or continue with</p>
             <div className="flex justify-center">
               <button
                 type="button"
@@ -318,7 +344,8 @@ export default function SignupPage() {
                 />
                 Google
               </button>
-            </div>
+            </div> */}
+            
              {/* Toggle between Login and Sign Up */}
              <div className="mt-4 text-center">
               {loginhandle ? (
